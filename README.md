@@ -1,4 +1,3 @@
-﻿# Real-Time-Task-Management-
 # Real-Time Task Management System
 
 ## 📌 Overview
