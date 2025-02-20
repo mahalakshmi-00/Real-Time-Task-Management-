@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Task Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: white;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            transition: background 0.3s;
+            position: relative;
+        }
+        .dark-mode .container {
+            background: #444;
+        }
+        h1 {
+            color: #333;
+        }
+        .dark-mode h1 {
+            color: #ffcc00;
+        }
+        .task-board {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .column {
+            flex: 1;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .dark-mode .column {
+            background: #555;
+        }
+        .task-list {
+            min-height: 150px;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+        }
+        .task {
+            background: #007bff;
+            color: #fff;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: grab;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+        .task:hover {
+            transform: scale(1.05);
+        }
+        .task span {
+            display: block;
+            font-size: 12px;
+            color: #f8f9fa;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .dark-mode button {
+            background: #ff9800;
+        }
+        #toggleDarkMode {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Task Management System</h1>
+        <button id="toggleDarkMode">🌙</button>
+        <div class="task-board">
+            <div class="column" id="todo">
+                <h2>To-Do</h2>
+                <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <button class="addTask" data-column="todo">+ Add Task</button>
+            </div>
+            <div class="column" id="in-progress">
+                <h2>In Progress</h2>
+                <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+            <div class="column" id="completed">
+                <h2>Completed</h2>
+                <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("toggleDarkMode").addEventListener("click", function() {
+                document.body.classList.toggle("dark-mode");
+            });
+
+            document.querySelectorAll(".addTask").forEach(button => {
+                button.addEventListener("click", function() {
+                    addTask(this.dataset.column);
+                });
+            });
+
+            setInterval(checkDeadlines, 60000);
+        });
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            let data = event.dataTransfer.getData("text");
+            event.target.appendChild(document.getElementById(data));
+        }
+
+        function addTask(columnId) {
+            let taskText = prompt("Enter task:");
+            if (taskText) {
+                let deadline = prompt("Enter deadline (YYYY-MM-DD):");
+                let task = document.createElement("div");
+                task.classList.add("task");
+                task.textContent = taskText;
+                if (deadline) {
+                    let deadlineSpan = document.createElement("span");
+                    deadlineSpan.textContent = "Deadline: " + deadline;
+                    deadlineSpan.setAttribute("data-deadline", deadline);
+                    task.appendChild(deadlineSpan);
+                }
+                task.setAttribute("draggable", "true");
+                task.setAttribute("id", "task-" + Math.random().toString(36).substr(2, 9));
+                task.ondragstart = drag;
+                document.getElementById(columnId).querySelector(".task-list").appendChild(task);
+            }
+        }
+
+        function checkDeadlines() {
+            let tasks = document.querySelectorAll(".task span[data-deadline]");
+            let now = new Date().toISOString().split("T")[0];
+            tasks.forEach(task => {
+                if (task.getAttribute("data-deadline") === now) {
+                    alert("Reminder: Task deadline is today!" );
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
